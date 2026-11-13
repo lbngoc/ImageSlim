@@ -87,6 +87,17 @@ bash install.sh
 rm -rf ~/Library/Services/"ImageSlim (PNG_JPG_WEBP).workflow"
 ```
 
+## 文件
+
+| 檔案 | 語言 | 角色 |
+| --- | --- | --- |
+| `README.md` | English | 主版本（primary） |
+| `README.vi.md` | Tiếng Việt | 越南文版本 |
+| `README.zh-TW.md` | 繁體中文 | 中文版本 |
+
+三個檔案開頭都有語言切換連結，章節結構必須保持一致。
+**修改安裝流程、壓縮行為或故障排除步驟時，三份都要同步更新。**
+
 ## 測試場景
 
 - [x] PNG 文件壓縮（實測 832KB → 270KB，備份 `*.orig.png` 位元組一致）
