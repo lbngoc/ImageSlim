@@ -84,9 +84,39 @@ killall Finder
 
 | 問題 | 解決方案 |
 |-----|--------|
-| 找不到快速動作 | 重啟 Finder 或檢查 `~/Library/Services/` 路徑 |
+| 找不到快速動作 | 見下方「快速動作沒有出現」 |
 | 權限被拒 | 執行 `chmod +x install.sh` 後重試 |
 | 工具未安裝 | 執行 `brew install pngquant jpegoptim webp` |
+
+### 快速動作沒有出現
+
+macOS 上，新加入 `~/Library/Services/` 的服務預設是「未啟用」的，只重啟 Finder 不夠。
+`install.sh` 已自動處理，若要手動修復：
+
+```bash
+# 1. 讓 pbs 重新掃描 Services，並重啟它
+/System/Library/CoreServices/pbs -update
+killall pbs
+# 2. 重啟 Finder
+killall Finder
+```
+
+仍看不到時，依序確認：
+
+1. **先選中圖片檔案**再右鍵 —— 空的資料夾背景不會顯示圖片類動作
+2. System Settings → Keyboard → Keyboard Shortcuts → **Services** → **Finder**，
+   勾選 `ImageSlim (PNG/JPG/WEBP)`
+3. 檢查服務是否已註冊：
+   ```bash
+   /System/Library/CoreServices/pbs -dump_pboard | grep -A3 ImageSlim
+   ```
+   沒有輸出代表 bundle 沒被讀到，重新執行 `bash install.sh`
+4. 直接驗證工作流本身可否執行（可排除 bundle 損壞）：
+   ```bash
+   /usr/bin/automator -i ~/Desktop/test.png \
+     ~/Library/Services/"ImageSlim (PNG_JPG_WEBP).workflow"
+   ```
+5. 極少數情況需要登出再登入，Finder 才會重建選單
 
 ## 作者
 

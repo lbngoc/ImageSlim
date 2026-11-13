@@ -493,6 +493,42 @@ fi</string>
 </plist>
 EOF
 
+echo "🔔 Enabling the Quick Action in macOS Services..."
+
+PBS_BIN=/System/Library/CoreServices/pbs
+if [[ -x "$PBS_BIN" ]]; then
+  # Recent macOS keeps a newly installed service hidden until pbs has an entry
+  # for it. This writes the same entry the System Settings checkbox does.
+  SERVICE_TITLE="$(/usr/libexec/PlistBuddy -c "Print :NSServices:0:NSMenuItem:default" \
+    "$TARGET/Contents/Info.plist" 2>/dev/null || true)"
+  PBS_KEY=":NSServicesStatus:(null) - $SERVICE_TITLE - runWorkflowAsService"
+  PBS_DUMP="$(mktemp -t imageslim-pbs)"
+
+  if defaults export pbs "$PBS_DUMP" 2>/dev/null; then
+    /usr/libexec/PlistBuddy -c "Delete \"$PBS_KEY\"" "$PBS_DUMP" >/dev/null 2>&1 || true
+    /usr/libexec/PlistBuddy \
+      -c "Add \"$PBS_KEY\" dict" \
+      -c "Add \"$PBS_KEY:presentation_modes\" dict" \
+      -c "Add \"$PBS_KEY:presentation_modes:ContextMenu\" integer 1" \
+      -c "Add \"$PBS_KEY:presentation_modes:FinderPreview\" integer 1" \
+      -c "Add \"$PBS_KEY:presentation_modes:ServicesMenu\" integer 1" \
+      -c "Add \"$PBS_KEY:presentation_modes:TouchBar\" integer 0" \
+      "$PBS_DUMP" >/dev/null 2>&1 || true
+    defaults import pbs "$PBS_DUMP" 2>/dev/null || true
+    echo "✅ Service registered in pbs"
+  else
+    echo "⚠️  Could not read the pbs preferences; the action may need to be"
+    echo "   enabled manually in System Settings → Keyboard → Keyboard Shortcuts → Services"
+  fi
+  rm -f "$PBS_DUMP"
+
+  killall pbs 2>/dev/null || true
+  sleep 1
+  "$PBS_BIN" -update 2>/dev/null || true
+else
+  echo "⚠️  pbs not found; enable the action manually in System Settings if needed"
+fi
+
 echo "🔄 Reloading Finder..."
 if killall Finder 2>/dev/null; then
   sleep 1
