@@ -143,27 +143,97 @@ cat > "$TARGET/Contents/document.wflow" <<'EOF'
           <key>COMMAND_STRING</key>
           <string>export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
 
-if ! command -v pngquant &gt;/dev/null 2&gt;&amp;1 || ! command -v jpegoptim &gt;/dev/null 2&gt;&amp;1 || ! command -v cwebp &gt;/dev/null 2&gt;&amp;1; then
-  echo "找不到壓縮工具，請重新執行安裝腳本。" &gt;&amp;amp;2
-  exit 1
-fi
+# Compressed result keeps the original name; the untouched original is kept
+# beside it as "&lt;name&gt;.orig.&lt;ext&gt;". If that backup already exists the file
+# is skipped, so running twice never degrades it twice.
+
+compressed=0
+skipped=0
+saved=0
 
 for file in "$@"; do
-  ext="${file##*.}"
-  ext="${ext:l}"
+  [ -f "$file" ] || continue
 
-  case "$ext" in
+  ext="${file##*.}"
+  base="${file%.*}"
+  backup="$base.orig.${file##*.}"
+
+  case "${ext:l}" in
+    png)      tool=pngquant  ;;
+    jpg|jpeg) tool=jpegoptim ;;
+    webp)     tool=cwebp     ;;
+    *)        continue       ;;
+  esac
+
+  if ! command -v "$tool" &gt;/dev/null 2&gt;&amp;1; then
+    echo "Missing $tool. Run install.sh again to install it." &gt;&amp;2
+    skipped=$((skipped+1))
+    continue
+  fi
+
+  if [ -e "$backup" ]; then
+    echo "Skipped, original already saved as $backup: $file" &gt;&amp;2
+    skipped=$((skipped+1))
+    continue
+  fi
+
+  tmp="$(mktemp -t imageslim)" || continue
+  trap 'rm -f "$tmp"' EXIT
+
+  orig_size=$(stat -f%z "$file")
+
+  case "${ext:l}" in
     png)
-      pngquant --force --skip-if-larger --quality=70-90 --ext .png "$file"
+      pngquant --force --skip-if-larger --quality=70-90 --output "$tmp" "$file"
       ;;
     jpg|jpeg)
-      jpegoptim --strip-all --max=85 "$file"
+      # --strip-all drops EXIF (including orientation) and the ICC profile.
+      jpegoptim --strip-all --max=85 --stdout "$file" &gt; "$tmp"
       ;;
     webp)
-      cwebp -q 80 "$file" -o "$file"
+      cwebp -quiet -q 80 "$file" -o "$tmp"
       ;;
   esac
-done</string>
+  rc=$?
+
+  # Only swap in the result when it is smaller; otherwise leave the file alone.
+  if [ -s "$tmp" ] &amp;&amp; [ "$(stat -f%z "$tmp")" -lt "$orig_size" ]; then
+    new_size=$(stat -f%z "$tmp")
+    if mv -f "$file" "$backup" &amp;&amp; mv -f "$tmp" "$file"; then
+      compressed=$((compressed+1))
+      saved=$((saved + orig_size - new_size))
+      echo "Compressed: $file (original saved as $(basename "$backup"))"
+    fi
+  else
+    rm -f "$tmp"
+    skipped=$((skipped+1))
+    case "$rc" in
+      98) echo "Skipped, result would be larger: $file" ;;
+      99) echo "Skipped, quality would drop below target: $file" ;;
+      *)  echo "Skipped, no smaller result: $file" ;;
+    esac
+  fi
+done
+
+# One summary notification for the whole batch.
+if [ $((compressed + skipped)) -gt 0 ]; then
+  if [ "$saved" -ge 1048576 ]; then
+    human="$(awk -v b="$saved" 'BEGIN { printf "%.1f MB", b / 1048576 }')"
+  elif [ "$saved" -ge 1024 ]; then
+    human="$(awk -v b="$saved" 'BEGIN { printf "%.0f KB", b / 1024 }')"
+  else
+    human="${saved} B"
+  fi
+
+  if [ "$compressed" -gt 0 ]; then
+    msg="$compressed compressed, saved $human"
+    [ "$skipped" -gt 0 ] &amp;&amp; msg="$msg, $skipped skipped"
+  else
+    msg="Nothing to optimize, $skipped skipped"
+  fi
+
+  osascript -e "display notification \"$msg\" with title \"ImageSlim\"" &gt;/dev/null 2&gt;&amp;1
+fi</string>
           <key>CheckedForUserDefaultShell</key>
           <true/>
           <key>inputMethod</key>
