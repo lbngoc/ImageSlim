@@ -1,15 +1,15 @@
 #!/bin/bash
 set -e
 
-echo "🔍 檢查作業系統..."
+echo "🔍 Checking operating system..."
 if [[ "$OSTYPE" != "darwin"* ]]; then
-  echo "❌ 此腳本僅支援 macOS"
+  echo "❌ This script only supports macOS"
   exit 1
 fi
 
-echo "🍺 檢查 Homebrew..."
+echo "🍺 Checking Homebrew..."
 if ! command -v brew >/dev/null 2>&1; then
-  echo "➡️  未偵測到 Homebrew，開始安裝..."
+  echo "➡️  Homebrew not found, installing..."
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
   if [[ -f /opt/homebrew/bin/brew ]]; then
@@ -18,18 +18,21 @@ if ! command -v brew >/dev/null 2>&1; then
     eval "$(/usr/local/bin/brew shellenv)"
   fi
 else
-  echo "✅ Homebrew 已存在"
+  echo "✅ Homebrew is already installed"
 fi
 
-echo "📦 安裝圖片壓縮工具..."
+echo "📦 Installing image compression tools..."
 brew install pngquant jpegoptim webp
 
-echo "⚙️ 建立 Automator 快速動作..."
+echo "⚙️ Creating the Automator Quick Action..."
 
-WORKFLOW_NAME="圖片減肥（PNG_JPG_WEBP）.workflow"
+WORKFLOW_NAME="ImageSlim (PNG_JPG_WEBP).workflow"
 TARGET="$HOME/Library/Services/$WORKFLOW_NAME"
 
+# Remove a previous install, plus the legacy Chinese-named one, so Finder
+# never shows two identical entries.
 rm -rf "$TARGET"
+rm -rf "$HOME/Library/Services/圖片減肥（PNG_JPG_WEBP）.workflow"
 mkdir -p "$TARGET/Contents"
 
 cat > "$TARGET/Contents/Info.plist" <<'EOF'
@@ -49,7 +52,7 @@ cat > "$TARGET/Contents/Info.plist" <<'EOF'
 			<key>NSMenuItem</key>
 			<dict>
 				<key>default</key>
-				<string>圖片減肥（PNG_JPG_WEBP）</string>
+				<string>ImageSlim (PNG/JPG/WEBP)</string>
 			</dict>
 			<key>NSMessage</key>
 			<string>runWorkflowAsService</string>
@@ -137,7 +140,7 @@ cat > "$TARGET/Contents/document.wflow" <<'EOF'
         <key>ActionBundlePath</key>
         <string>/System/Library/Automator/Run Shell Script.action</string>
         <key>ActionName</key>
-        <string>執行Shell工序指令</string>
+        <string>Run Shell Script</string>
         <key>ActionParameters</key>
         <dict>
           <key>COMMAND_STRING</key>
@@ -262,9 +265,9 @@ fi</string>
         <key>Keywords</key>
         <array>
           <string>Shell</string>
-          <string>工序指令</string>
-          <string>指令</string>
-          <string>執行</string>
+          <string>script</string>
+          <string>command</string>
+          <string>Run</string>
           <string>Unix</string>
         </array>
         <key>OutputUUID</key>
@@ -490,16 +493,16 @@ fi</string>
 </plist>
 EOF
 
-echo "🔄 重新載入 Finder..."
+echo "🔄 Reloading Finder..."
 if killall Finder 2>/dev/null; then
   sleep 1
-  echo "✅ Finder 已重新啟動，快速動作已激活"
+  echo "✅ Finder restarted, the Quick Action is active"
 else
-  echo "⚠️  未能自動重啟 Finder，請手動重啟："
-  echo "   按住 Option，右鍵點擊 Dock 中的 Finder，選擇「重新啟動」"
+  echo "⚠️  Could not restart Finder automatically. Restart it manually:"
+  echo "   Hold Option, right-click Finder in the Dock, then choose Relaunch"
 fi
 
 echo ""
-echo "🎉 安裝完成！"
-echo "使用方式："
-echo "Finder 選圖片 → 右鍵 → 快速動作 → 圖片減肥（PNG/JPG/WEBP）"
+echo "🎉 Installation complete!"
+echo "Usage:"
+echo "Select images in Finder → right-click → Quick Actions → ImageSlim (PNG/JPG/WEBP)"

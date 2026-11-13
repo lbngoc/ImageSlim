@@ -42,7 +42,7 @@ killall Finder
 1. 在 Finder 中選取一或多張圖片
 2. 右鍵點擊
 3. 選擇「快速動作」
-4. 點擊「圖片減肥（PNG/JPG/WEBP）」
+4. 點擊「ImageSlim (PNG/JPG/WEBP)」
 
 ✅ 壓縮結果保留原檔名，原始檔自動備份為 `檔名.orig.原副檔名`（例：`photo.png` → `photo.orig.png`）
 

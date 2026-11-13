@@ -84,7 +84,7 @@ bash install.sh
 
 ### 卸載流程
 ```bash
-rm -rf ~/Library/Services/圖片減肥（PNG_JPG_WEBP）.workflow
+rm -rf ~/Library/Services/"ImageSlim (PNG_JPG_WEBP).workflow"
 ```
 
 ## 測試場景
