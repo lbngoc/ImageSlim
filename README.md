@@ -30,11 +30,42 @@ Shrink images straight from the Finder right-click menu on macOS.
 
 ## Install
 
+The URLs below point at `lbngoc/ImageSlim`, the fork that carries these changes;
+swap `lbngoc` for `sacahan` once they are merged upstream.
+
+### Quick install
+
 ```bash
-git clone https://github.com/sacahan/ImageSlim.git
+curl -fsSL https://raw.githubusercontent.com/lbngoc/ImageSlim/main/install.sh -o /tmp/imageslim-install.sh
+less /tmp/imageslim-install.sh   # read it first if you like
+bash /tmp/imageslim-install.sh
+```
+
+Piping it straight into a shell also works, but then you never read what runs:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/lbngoc/ImageSlim/main/install.sh | bash
+```
+
+Use `bash`, not `sh`. The script needs bash (`[[ ]]`, heredocs), so `sh` — which is
+`dash` on many systems — will fail.
+
+The URL follows the `main` branch, so it installs whatever is there at that moment. To
+pin it, replace `main` with a tag or commit:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/lbngoc/ImageSlim/<tag-or-commit>/install.sh | bash
+```
+
+### From a clone
+
+```bash
+git clone https://github.com/lbngoc/ImageSlim.git
 cd ImageSlim
 bash install.sh
 ```
+
+Both ways need nothing else — the script is self-contained.
 
 What the installer does:
 

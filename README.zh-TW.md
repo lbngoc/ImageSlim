@@ -30,11 +30,42 @@
 
 ## 安裝方式
 
+以下 URL 指向 `lbngoc/ImageSlim`（目前帶有這些修正的 fork）；合併回上游後把 `lbngoc`
+換成 `sacahan` 即可。
+
+### 快速安裝
+
 ```bash
-git clone https://github.com/sacahan/ImageSlim.git
+curl -fsSL https://raw.githubusercontent.com/lbngoc/ImageSlim/main/install.sh -o /tmp/imageslim-install.sh
+less /tmp/imageslim-install.sh   # 想先看內容就看
+bash /tmp/imageslim-install.sh
+```
+
+直接管線交給 shell 也可以，但這樣你就不會先讀過要執行的內容：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/lbngoc/ImageSlim/main/install.sh | bash
+```
+
+請用 `bash`，不要用 `sh`。腳本需要 bash 語法（`[[ ]]`、heredoc），在多數系統上 `sh`
+是 `dash`，會直接失敗。
+
+URL 跟著 `main` 分支，所以會安裝「當下」的最新內容。要固定版本就把 `main` 換成
+tag 或 commit：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/lbngoc/ImageSlim/<tag-或-commit>/install.sh | bash
+```
+
+### 從 clone 安裝
+
+```bash
+git clone https://github.com/lbngoc/ImageSlim.git
 cd ImageSlim
 bash install.sh
 ```
+
+兩種方式都不需要其他前置作業 —— 腳本本身已包含全部內容。
 
 安裝腳本依序執行：
 

@@ -30,11 +30,42 @@ Nén ảnh ngay từ menu chuột phải của Finder trên macOS.
 
 ## Cài đặt
 
+Các URL dưới đây trỏ tới `lbngoc/ImageSlim` — fork đang chứa các thay đổi này; khi đã merge
+lên upstream thì đổi `lbngoc` thành `sacahan`.
+
+### Cài nhanh
+
 ```bash
-git clone https://github.com/sacahan/ImageSlim.git
+curl -fsSL https://raw.githubusercontent.com/lbngoc/ImageSlim/main/install.sh -o /tmp/imageslim-install.sh
+less /tmp/imageslim-install.sh   # xem qua nếu muốn
+bash /tmp/imageslim-install.sh
+```
+
+Pipe thẳng vào shell cũng được, nhưng khi đó bạn không đọc nội dung sẽ chạy:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/lbngoc/ImageSlim/main/install.sh | bash
+```
+
+Dùng `bash`, **không** dùng `sh`: script cần cú pháp bash (`[[ ]]`, heredoc), nên `sh`
+(trên nhiều hệ thống là `dash`) sẽ lỗi.
+
+URL trỏ theo nhánh `main` nên luôn cài đúng bản mới nhất ở thời điểm chạy. Muốn ghim phiên
+bản thì thay `main` bằng tag hoặc commit:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/lbngoc/ImageSlim/<tag-hoac-commit>/install.sh | bash
+```
+
+### Từ bản clone
+
+```bash
+git clone https://github.com/lbngoc/ImageSlim.git
 cd ImageSlim
 bash install.sh
 ```
+
+Cả hai cách đều không cần gì thêm — script tự chứa mọi thứ.
 
 Installer làm những việc sau:
 

@@ -10,7 +10,9 @@ fi
 echo "🍺 Checking Homebrew..."
 if ! command -v brew >/dev/null 2>&1; then
   echo "➡️  Homebrew not found, installing..."
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  # < /dev/null keeps the Homebrew installer from reading the rest of this
+  # script when it is piped into bash.
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" < /dev/null
 
   if [[ -f /opt/homebrew/bin/brew ]]; then
     eval "$(/opt/homebrew/bin/brew shellenv)"
@@ -22,7 +24,7 @@ else
 fi
 
 echo "📦 Installing image compression tools..."
-brew install pngquant jpegoptim webp
+brew install pngquant jpegoptim webp < /dev/null
 
 echo "⚙️ Creating the Automator Quick Action..."
 
